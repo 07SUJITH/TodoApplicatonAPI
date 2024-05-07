@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "../signup/Signup.module.css";
 import axiosInstance from '../../config/axiosInstance';
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import axios from "axios";
 const Login: React.FC = () => {
  const navigate = useNavigate();
  const [loading, setLoading] = useState<boolean>(false);
@@ -58,14 +59,19 @@ const Login: React.FC = () => {
       }
     } catch (err) {
       console.log("error in handling login details", err);
-      if (err.response) {
-        toast.error("An error occurred. Please try again.");
-      } else if (err.request) {
-        toast.error("The server is not responding. Please try again later.");
+      if (axios.isAxiosError(err)) {
+         // Now TypeScript knows that 'err' is an AxiosError, and you can safely access 'err.response'
+         if (err.response) {
+           toast.error("An error occurred. Please try again.");
+         } else if (err.request) {
+           toast.error("The server is not responding. Please try again later.");
+         } else {
+           toast.error("An error occurred. Please try again.");
+         }
       } else {
-        toast.error("An error occurred. Please try again.");
+         toast.error("An unexpected error occurred. Please try again.");
       }
-    } finally {
+     }finally {
       setLoading(false);
     }
  };
