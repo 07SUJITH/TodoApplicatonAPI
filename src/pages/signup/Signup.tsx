@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { isValidEmail, isValidPassword, isValidUsername } from "../../utils/regexMatcher.js";
 import styles from "./Signup.module.css";
 import axiosInstance from "../../config/axiosInstance.js";
+import axios from "axios";
 
 const Signup: React.FC = () => {
  const navigate = useNavigate();
@@ -78,39 +79,25 @@ const Signup: React.FC = () => {
      } else {
        toast.error("An unexpected error occurred. Please try again.");
      }
-  } catch (err) {
-     console.log("error in handling signup details", err);
-     if (err.response) {
-       switch (err.response.status) {
-         case 400:
-           toast.error("Bad Request. Please check your input.");
-           break;
-         case 401:
-           toast.error("Unauthorized. Please check your credentials.");
-           break;
-         case 403:
-           toast.error("Forbidden. You do not have permission to access this.");
-           break;
-         case 404:
-           toast.error("Not Found. The requested resource could not be found.");
-           break;
-         case 500:
-           toast.error("Internal Server Error. Please try again later.");
-           break;
-         case 503:
-           toast.error("Service Unavailable. The server is currently unable to handle the request.");
-           break;
-         default:
+    } catch (err) {
+      console.log("error in handling login details", err);
+      if (axios.isAxiosError(err)) {
+         // Now TypeScript knows that 'err' is an AxiosError, and you can safely access 'err.response'
+         if (err.response) {
+           // Handle specific HTTP error statuses if necessary
            toast.error("An error occurred. Please try again.");
-       }
-     } else if (err.request) {
-       // The request was made but no response was received
-       toast.error("The server is not responding. Please try again later.");
-     } else {
-       // Something happened in setting up the request that triggered an Error
-       toast.error("An error occurred. Please try again.");
-     }
-  } finally {
+         } else if (err.request) {
+           // The request was made but no response was received
+           toast.error("The server is not responding. Please try again later.");
+         } else {
+           // Something happened in setting up the request that triggered an Error
+           toast.error("An error occurred. Please try again.");
+         }
+      } else {
+         // Handle the case where 'err' is not an AxiosError
+         toast.error("An unexpected error occurred. Please try again.");
+      }
+     }finally {
      setLoading(false);
   }
  };
